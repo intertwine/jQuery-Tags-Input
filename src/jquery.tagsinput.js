@@ -74,7 +74,7 @@
   };
 
 	$.fn.addTag = function(value,options) {
-			options = jQuery.extend({focus:false,callback:true},options);
+			options = jQuery.extend({focus:false,callback:true,interactive:true},options);
 			this.each(function() {
 				var id = $(this).attr('id');
 
@@ -96,16 +96,17 @@
 				}
 
 				if (value !='' && skipTag != true) {
-                    $('<span>').addClass('tag').append(
-                        $('<span>').text(value).append('&nbsp;&nbsp;'),
-                        $('<a>', {
-                            href  : '#',
-                            title : 'Removing tag',
-                            text  : 'x'
-                        }).click(function () {
-                            return $('#' + id).removeTag(escape(value));
-                        })
-                    ).insertBefore('#' + id + '_addTag');
+					var tagEl = $('<span>').text(value).append('&nbsp;&nbsp;');
+					var removeEl = $('<a>', {
+							href  : '#',
+							title : 'Removing tag',
+							text  : 'x'
+					}).click(function () {
+							return $('#' + id).removeTag(escape(value));
+					});
+					$('<span>').addClass('tag').append(
+						tagEl, (options.interactive) ? removeEl : ''
+					).insertBefore('#' + id + '_addTag');
 
 					tagslist.push(value);
 
@@ -350,9 +351,10 @@
 	$.fn.tagsInput.importTags = function(obj,val) {
 		$(obj).val('');
 		var id = $(obj).attr('id');
+		var interactive = !( $(obj).prop('disabled') );
 		var tags = val.split(delimiter[id]);
 		for (i=0; i<tags.length; i++) {
-			$(obj).addTag(tags[i],{focus:false,callback:false});
+			$(obj).addTag(tags[i],{focus:false,callback:false,interactive:interactive});
 		}
 		if(tags_callbacks[id] && tags_callbacks[id]['onChange'])
 		{
